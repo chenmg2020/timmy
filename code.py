@@ -7,6 +7,9 @@ import cv2
 # from mss import mss
 import matplotlib.pyplot as plt
 import pyautogui
+import logging
+
+logging.basicConfig(filename='gate_grind.log', level=logging.INFO,format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
 x_pad = 314
 y_pad = 4
@@ -82,7 +85,7 @@ def click_template(template_path):
     img = get_screen()
     img = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
     img2 = img.copy()
-    threshold = 0.8
+    threshold = 0.65
 
     template = cv2.imread('templates/' + template_path,0)
     w, h = template.shape[::-1]
@@ -141,18 +144,19 @@ def check_template(template_path,screen_padding =(0,0)):
     return max_val
 
 def enter_gate_duel():
-
-    while not click_template('gate.PNG'):
-        pass
-    while not click_template('duel_btn.PNG'):
-        pass
-    while not click_template('dialog_arrow.PNG'):
-        pass
-    while not click_template('confirm_duel_btn.PNG'):
-        pass
+    buttons = ['gate.PNG','duel_btn.PNG', 'dialog_arrow.PNG','confirm_duel_btn.PNG']
+    for button in buttons:
+        if click_template(button):
+            time.sleep(2)
+            enter_gate_duel()
     timmy_duel()
 
 def timmy_duel():
+    i = 0
+    while (get_screen().getpixel((1018,74)) != (9,51,185) and get_screen().getpixel((1018,74)) != (173,3,3)):
+        i += 1
+        if (i >= 10):
+            enter_gate_duel()
     while(get_screen().getpixel((1018,74)) != (9,51,185)): 
         print('waiting for your turn')
     else:
@@ -161,6 +165,7 @@ def timmy_duel():
         if check_template('phase_draw.PNG') > 0.9:
             print('enter draw phase')
             draw()
+            time.sleep(1)
 
         #main_phase
         if check_template('phase_main.PNG') > 0.9:
@@ -175,7 +180,7 @@ def timmy_duel():
             while not click_template('phase_btn.PNG'):
                 pass
             change_phase()
-            time.sleep(5)
+            time.sleep(3.5)
             timmy_duel() #first turn has no battle phase
 
         #battle_phase
@@ -191,25 +196,30 @@ def timmy_duel():
             for pt in zip(*loc[::-1]):
                 if ( 660 < pt[0] < 970 and  470 < pt[1] < 600):
                     click(pt[0], pt[1])
+                    i = 0
                     while not click_template('atk_btn.PNG'):
+                        i += 1
                         click(pt[0], pt[1])
+                        if (i >= 10):
+                            break
                     print('monster attack')
                     duel_won  = check_exit()
                     if (duel_won):
                         exit_duel()
                     else:
                         continue
-        print('All monsters have attacked, ending turn')
-        click_template('phase_btn.PNG') #end turn
-        change_phase()
-        time.sleep(10)
-        timmy_duel()
+            print('All monsters have attacked, ending turn')
+            click_template('phase_btn.PNG') #end turn
+            change_phase()
+            time.sleep(10)
+            timmy_duel()
 
 def exit_duel():
     print ('Duel won, collecting rewards and exiting')
+    logging.info('gate_cleared')
     buttons = ['win_ok_btn.PNG','next_btn.PNG','dialog_arrow.PNG']
     while check_template('gate.PNG') < 0.65:
-        click(screen_mid[0],screen_mid[1])
+        # click(screen_mid[0],screen_mid[1])
         for button in buttons:
             click_template(button)
     enter_gate_duel()
@@ -224,7 +234,7 @@ def check_exit():
         return True
 
 def main():
-    exit_duel()
+    enter_gate_duel()
  
 if __name__ == '__main__':
     main()
