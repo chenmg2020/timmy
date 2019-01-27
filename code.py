@@ -82,7 +82,7 @@ def click_template(template_path):
     img = get_screen()
     img = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
     img2 = img.copy()
-    threshold = 0.65
+    threshold = 0.8
 
     template = cv2.imread('templates/' + template_path,0)
     w, h = template.shape[::-1]
@@ -216,8 +216,6 @@ def exit_duel():
         pass
     while not click_template('win_ok_btn.PNG'):
         pass
-    while not click_template('next_btn.PNG'):
-        pass
     while not click_template('dialog_arrow.PNG'):
         pass
     enter_gate_duel()
@@ -232,7 +230,6 @@ def check_exit():
         return True
 
 def main():
-
     enter_gate_duel()
  
 if __name__ == '__main__':
