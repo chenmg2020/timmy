@@ -35,7 +35,7 @@ screen_mid = (800,420)
 #     # # im.save(os.getcwd() + '\\full_snap__' + str(int(time.time())) +'.png', 'PNG')
 #     # return im
 
-def get_screen(screen_padding= (0,0)):
+def get_screen(screen_padding= (0,0,x_frame,y_frame)):
     box = (x_pad + screen_padding[0], y_pad + screen_padding[1], x_pad + x_frame, y_pad + y_frame)
     frame = ImageGrab.grab(box)
     time.sleep(0.1)
@@ -82,15 +82,14 @@ def click_template(template_path):
     img = get_screen()
     img = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
     img2 = img.copy()
-    threshold = 0.6
+    threshold = 0.65
 
     template = cv2.imread('templates/' + template_path,0)
     w, h = template.shape[::-1]
     img = img2.copy()
-    method = eval('cv2.TM_CCOEFF_NORMED')
 
     # Apply template Matching
-    res = cv2.matchTemplate(img,template,method)
+    res = cv2.matchTemplate(img,template,cv2.TM_CCOEFF_NORMED)
 
     min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
     max_val_string = "{0:.2f}".format(max_val)
@@ -127,7 +126,6 @@ def summon_monster():
     time.sleep(6)
 
 def check_template(template_path,screen_padding =(0,0)):
-    time.sleep(1)
     img = get_screen(screen_padding)
     img = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
     img2 = img.copy()
@@ -144,6 +142,7 @@ def check_template(template_path,screen_padding =(0,0)):
     return max_val
 
 def enter_gate_duel():
+
     while not click_template('gate.PNG'):
         pass
     while not click_template('duel_btn.PNG'):
@@ -159,71 +158,82 @@ def timmy_duel():
         print('waiting for your turn')
     else:
         #draw_phase
-        print('entering your turn,checking phase')
+        print('checking phase')
         if check_template('phase_draw.PNG') > 0.9:
             print('enter draw phase')
             draw()
+
         #main_phase
         if check_template('phase_main.PNG') > 0.9:
             print('enter main phase')
             click(747,851) #select from hand
             time.sleep(1)
-            if check_template('monster_level.PNG',screen_padding=(0,y_frame/2)) < 0.6:
-                summon_monster()
-            if click_template('phase_btn.PNG'):
-                change_phase()
+            if check_template('normal_summon.PNG') < 0.9:
+                print('cant normal summon')
+                click (screen_mid[0],screen_mid[1])
+            else:
+                click_template('normal_summon.PNG')
+            while not click_template('phase_btn.PNG'):
+                pass
+            change_phase()
+            time.sleep(5)
+            timmy_duel() #first turn has no battle phase
+
         #battle_phase
         if check_template('phase_battle.PNG') > 0.9:
             print('enter battle_phase')
-            if check_template('monster_level.PNG') > 0.8:
-                click_template('monster_level.PNG')
-                click_template('atk_btn.PNG')
-                print('monster attack')
-                click(screen_mid[0],screen_mid[1])
-            while (check_template('phase_btn.PNG') < 0.9 and check_template('win_ok_btn.PNG')<0.9):
-                ('Waiting for board to update')
-                click(screen_mid[0],screen_mid[1]) #need to clear for opponent card effect
-            if (check_template('phase_btn.PNG') > 0.9):
-                print ('ending phase')
-                if click_template('phase_btn.PNG'):
-                    change_phase()
-                    time.sleep(5)
-                    timmy_duel()
-            elif(check_template('win_ok_btn.PNG') > 0.9):
-                print ('Duel won, collecting rewards and exiting')
-                while not click_template('win_ok_btn.PNG'):
-                    pass
-                while not click_template('next_btn.PNG'):
-                    pass
-                while not click_template('next_btn.PNG'):
-                    pass
-                while not click_template('win_ok_btn.PNG'):
-                    pass
-                while not click_template('next_btn.PNG'):
-                    pass
-                while not click_template('dialog_arrow.PNG'):
-                    pass
-                enter_gate_duel()
+            img = get_screen() #player's monster zones screen_padding=(660, 470, 970 , 600)
+            img_gray = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
+            template = cv2.imread('templates/monster_atk.PNG',0)
+            w, h = template.shape[::-1]
+            res = cv2.matchTemplate(img_gray,template,cv2.TM_CCOEFF_NORMED)
+            threshold = 0.9
+            loc = np.where(res >= threshold)
+            for pt in zip(*loc[::-1]):
+                if ( 660 < pt[0] < 970 and  470 < pt[1] < 600):
+                    click(pt[0], pt[1])
+                    while not click_template('atk_btn.PNG'):
+                        click(pt[0], pt[1])
+                    print('monster attack')
+                    duel_won  = check_exit()
+                    if (duel_won):
+                        exit_duel()
+                    else:
+                        continue
+        print('All monsters have attacked, ending turn')
+        click_template('phase_btn.PNG') #end turn
+        change_phase()
+        time.sleep(10)
+        timmy_duel()
+
+def exit_duel():
+    print ('Duel won, collecting rewards and exiting')
+    while not click_template('win_ok_btn.PNG'):
+        pass
+    while not click_template('next_btn.PNG'):
+        pass
+    while not click_template('next_btn.PNG'):
+        pass
+    while not click_template('win_ok_btn.PNG'):
+        pass
+    while not click_template('next_btn.PNG'):
+        pass
+    while not click_template('dialog_arrow.PNG'):
+        pass
+    enter_gate_duel()
+
+def check_exit():
+    while (check_template('phase_btn.PNG') < 0.9 and check_template('win_ok_btn.PNG') < 0.9):
+        ('Waiting for board to update')
+        click(screen_mid[0],screen_mid[1]) #need to clear for opponent card effect
+    if (check_template('phase_btn.PNG') >= 0.9):
+        return False
+    if (check_template('win_ok_btn.PNG') >= 0.9):
+        return True
 
 def main():
 
     enter_gate_duel()
-    timmy_duel()
-    # enter_gate_duel()
-    # summon_monster()
-    # get_current_state()
-    # screen_grab()
-    # enter_gate()
-    # start_duel()
-    # accept_duel()
-    # draw()
-    # summon_monster()
-    # change_phase()
-    # attack()
-    # change_phase()
-    # time.sleep(30)
-    # get_cords()
-    # getCurrentState():
  
 if __name__ == '__main__':
     main()
