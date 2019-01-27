@@ -104,7 +104,6 @@ def click_template(template_path):
 
 def click(x,y):
     pyautogui.click(x + x_pad , y + y_pad)
-    time.sleep(1)
     
 def change_phase():
     print('change_phase')
@@ -208,16 +207,11 @@ def timmy_duel():
 
 def exit_duel():
     print ('Duel won, collecting rewards and exiting')
-    while not click_template('win_ok_btn.PNG'):
-        pass
-    while not click_template('next_btn.PNG'):
-        pass
-    while not click_template('next_btn.PNG'):
-        pass
-    while not click_template('win_ok_btn.PNG'):
-        pass
-    while not click_template('dialog_arrow.PNG'):
-        pass
+    buttons = ['win_ok_btn.PNG','next_btn.PNG','dialog_arrow.PNG']
+    while check_template('gate.PNG') < 0.65:
+        click(screen_mid[0],screen_mid[1])
+        for button in buttons:
+            click_template(button)
     enter_gate_duel()
 
 def check_exit():
@@ -230,7 +224,7 @@ def check_exit():
         return True
 
 def main():
-    enter_gate_duel()
+    exit_duel()
  
 if __name__ == '__main__':
     main()
