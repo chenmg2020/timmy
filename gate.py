@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import pyautogui
 import logging
 
-logging.basicConfig(filename='gate_grind.log', level=logging.INFO,format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+logging.basicConfig(filename='gate.log', level=logging.INFO,format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
 x_pad = 314
 y_pad = 4
@@ -17,69 +17,12 @@ x_frame = 1596
 y_frame = 921
 screen_mid = (800,420)
 
-# def screen_grab():
-#     """
-#     Coordinate based on 1080p by 1920p screen where Duel Links Steam is dragged to top right corner
-#     """
-#     box = (x_pad+1, y_pad + 1, x_pad + 1596, y_pad + 921)
-#     cv2.namedWindow('window', cv2.WINDOW_KEEPRATIO)
-#     while(True):
-#         frame = ImageGrab.grab(box)
-#         frame = np.array(frame.getdata(), dtype = 'uint8').reshape((frame.size[1], frame.size[0], 3))
-#         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-#         cv2.imshow('window', frame)
-#         if cv2.waitKey(0) & 0xFF == ord('q'):
-#             cv2.destroyAllWindows()
-#             break
-#         time.sleep(1)
-#     # cv2.imshow('image',im)
-#     # cv2.waitKey(0)
-#     # cv2.destroyAllWindows()
-#     # # im.save(os.getcwd() + '\\full_snap__' + str(int(time.time())) +'.png', 'PNG')
-#     # return im
 
 def get_screen(screen_padding= (0,0,x_frame,y_frame)):
     box = (x_pad + screen_padding[0], y_pad + screen_padding[1], x_pad + x_frame, y_pad + y_frame)
     frame = ImageGrab.grab(box)
     time.sleep(0.1)
     return frame
-
-def get_current_state():
-
-    img = get_screen()
-    img = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
-    img2 = img.copy()
-
-    template =cv2.imread('gate.png',0)
-    w, h = template.shape[::-1]
-    # All the 6 methods for comparison in a list
-    methods = ['cv2.TM_CCOEFF', 'cv2.TM_CCOEFF_NORMED', 'cv2.TM_CCORR',
-                'cv2.TM_CCORR_NORMED', 'cv2.TM_SQDIFF', 'cv2.TM_SQDIFF_NORMED']
-
-    for meth in methods:
-        img = img2.copy()
-        method = eval(meth)
-
-        # Apply template Matching
-        res = cv2.matchTemplate(img,template,method)
-        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
-
-        # If the method is TM_SQDIFF or TM_SQDIFF_NORMED, take minimum
-        if method in [cv2.TM_SQDIFF, cv2.TM_SQDIFF_NORMED]:
-            top_left = min_loc
-        else:
-            top_left = max_loc
-        bottom_right = (top_left[0] + w, top_left[1] + h)
-
-        cv2.rectangle(img,top_left, bottom_right, 255, 2)
-
-        plt.subplot(121),plt.imshow(res,cmap = 'gray')
-        plt.title('Matching Result'), plt.xticks([]), plt.yticks([])
-        plt.subplot(122),plt.imshow(img,cmap = 'gray')
-        plt.title('Detected Point'), plt.xticks([]), plt.yticks([])
-        plt.suptitle(meth)
-
-        plt.show()
 
 def click_template(template_path):
     img = get_screen()
@@ -153,7 +96,7 @@ def enter_gate_duel():
 
 def timmy_duel():
     i = 0
-    while (get_screen().getpixel((1018,74)) != (9,51,185) and get_screen().getpixel((1018,74)) != (173,3,3)):
+    while (get_screen().getpixel((1018,74)) != (9,51,185) and get_screen().getpixel((1018,74)) != (173,3,3)): #turn status neither red nor blue , means not in duel
         i += 1
         if (i >= 10):
             enter_gate_duel()
