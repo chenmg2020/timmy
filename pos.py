@@ -1,11 +1,13 @@
 # import numpy
-from PIL import ImageGrab,ImageOps
+from PIL import ImageGrab,ImageOps,Image;
 import os
 import time
 import pyautogui
 
-x_pad = 314
-y_pad = 4
+# x_pad = 314
+# y_pad = 4
+x_pad = 160
+y_pad = 70
     
 def get_cords():
     x,y = pyautogui.position()

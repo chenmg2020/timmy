@@ -11,8 +11,8 @@ import logging
 
 logging.basicConfig(filename='gate.log', level=logging.INFO,format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
-x_pad = 314
-y_pad = 4
+x_pad = 160
+y_pad = 70
 x_frame = 1596
 y_frame = 921
 screen_mid = (800,420)
@@ -63,13 +63,6 @@ def draw():
     time.sleep(1)
     click(747,684)
 
-def summon_monster():
-    click(747,851) #select from hand
-    time.sleep(1)
-    click(747,684)
-    print('summon_monster')
-    time.sleep(6)
-
 def check_template(template_path,screen_padding =(0,0)):
     img = get_screen(screen_padding)
     img = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
@@ -86,21 +79,22 @@ def check_template(template_path,screen_padding =(0,0)):
     print('checking ' + template_path + "(" + "{0:.2f}".format(max_val) + ")")
     return max_val
 
-def enter_gate_duel():
+def enter_gate():
+    print('finding gate...')
     buttons = ['gate.PNG','duel_btn.PNG', 'dialog_arrow.PNG','confirm_duel_btn.PNG']
     for button in buttons:
         if click_template(button):
-            time.sleep(2)
-            enter_gate_duel()
+            time.sleep(1)
+            enter_gate()
     timmy_duel()
 
 def timmy_duel():
-    i = 0
-    while (get_screen().getpixel((1018,74)) != (9,51,185) and get_screen().getpixel((1018,74)) != (173,3,3)): #turn status neither red nor blue , means not in duel
-        i += 1
-        if (i >= 10):
-            enter_gate_duel()
-    while(get_screen().getpixel((1018,74)) != (9,51,185)): 
+    print('checking for duel status...')
+    turn_status_pixel = (985,75)
+    if (get_screen().getpixel(turn_status_pixel) != (9,51,185) and get_screen().getpixel(turn_status_pixel) != (173,3,3)): #turn status neither red nor blue , means not in duel
+        print('no duel detected, finding gate...')
+        enter_gate()
+    while(get_screen().getpixel(turn_status_pixel) != (9,51,185)): 
         print('waiting for your turn')
     else:
         #draw_phase
@@ -108,7 +102,7 @@ def timmy_duel():
         if check_template('phase_draw.PNG') > 0.9:
             print('enter draw phase')
             draw()
-            time.sleep(1)
+            timmy_duel()
 
         #main_phase
         if check_template('phase_main.PNG') > 0.9:
@@ -132,7 +126,6 @@ def timmy_duel():
             img = get_screen() #player's monster zones screen_padding=(660, 470, 970 , 600)
             img_gray = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
             template = cv2.imread('templates/monster_atk.PNG',0)
-            w, h = template.shape[::-1]
             res = cv2.matchTemplate(img_gray,template,cv2.TM_CCOEFF_NORMED)
             threshold = 0.9
             loc = np.where(res >= threshold)
@@ -165,7 +158,7 @@ def exit_duel():
         # click(screen_mid[0],screen_mid[1])
         for button in buttons:
             click_template(button)
-    enter_gate_duel()
+    enter_gate()
 
 def check_exit():
     while (check_template('phase_btn.PNG') < 0.9 and check_template('win_ok_btn.PNG') < 0.9):
@@ -177,7 +170,7 @@ def check_exit():
         return True
 
 def main():
-    enter_gate_duel()
+    timmy_duel()
  
 if __name__ == '__main__':
     main()
