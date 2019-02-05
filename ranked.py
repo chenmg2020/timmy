@@ -82,28 +82,20 @@ def check_connection():
         if click_template(button):
             check_connection()
             time.sleep(10)
- 
-def enter_ranked_duel():
-    print('Scanning ranked buttons')
-    buttons = ['win_ok_btn.PNG','ok_btn.PNG','next_btn.PNG','plat_icon.PNG','quick_duel.PNG','rank_duel.PNG','initiate_link.PNG']
-    for button in buttons:
-        if click_template(button):
-            enter_ranked_duel()
-    ranked_duel()
 
 def enter_auto_duel():
     check_connection()
     for i in range(4):
         img = get_screen() #player's monster zones screen_padding=(660, 470, 970 , 600)
         img_gray = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
-        template = cv2.imread('templates/auto_duel_bubble.PNG',0)
+        template = cv2.imread('templates/bubble_point.PNG',0)
+        print('Checking bubble')
         res = cv2.matchTemplate(img_gray,template,cv2.TM_CCOEFF_NORMED)
         threshold = 0.55
         loc = np.where(res >= threshold)
         for pt in zip(*loc[::-1]):
             if not( 541 < pt[0] < 651 and 663 < pt[1] < 753) and not( 690 < pt[0] < 796 and 665 < pt[1] < 761): #card trader and ex trader
-                print('Checking bubble')
-                click(pt[0]-10 , pt[1]+10)
+                click(pt[0] , pt[1] -10)
                 time.sleep(2)
                 if (click_template('dialog_arrow.PNG')):
                     time.sleep(1)
@@ -122,6 +114,15 @@ def auto_duel():
             if click_template(button):
                 auto_duel()
     logging.info('auto_duel')
+
+ 
+def enter_ranked_duel():
+    print('Scanning ranked buttons')
+    buttons = ['win_ok_btn.PNG','ok_btn.PNG','next_btn.PNG','plat_icon.PNG','quick_duel.PNG','rank_duel.PNG','initiate_link.PNG']
+    for button in buttons:
+        if click_template(button):
+            enter_ranked_duel()
+    ranked_duel()
 
 def ranked_duel():
     print('checking for duel status...')
