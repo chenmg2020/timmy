@@ -81,7 +81,7 @@ def check_template(template_path,screen_padding =(0,0)):
 
 def enter_gate():
     print('finding gate...')
-    buttons = ['gate.PNG','duel_btn.PNG', 'dialog_arrow.PNG','confirm_duel_btn.PNG']
+    buttons = ['gate.PNG','duel_btn.PNG', 'dialog_arrow.PNG','confirm_duel_btn.PNG','retry.PNG']
     for button in buttons:
         if click_template(button):
             time.sleep(1)
