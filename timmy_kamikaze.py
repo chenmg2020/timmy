@@ -99,6 +99,7 @@ def cast_st(duration):
     print('casting st')
     t_end = time.time() + duration 
     while time.time() < t_end:
+        click(1256,967) #select
         if click_template('activate_effect.png'):
             wait_to_click('confirm_rug.png', 0.8) 
             wait_to_click('confirm_rug.png', 0.8)
@@ -113,7 +114,7 @@ def reset_cursor():
 
 def enter_casual():
     print('entering casual duel')
-    buttons = ['casual_duel_btn.png','duel_btn.png','confirm_duel_btn.png','arrow.png', 'initiate_link.png', 'duel_dome_gate.png', 'casual_duel_bar.png']
+    buttons = ['casual_duel_btn.png','duel_btn.png','confirm_duel_btn.png','arrow.png', 'initiate_link.png', 'duel_dome_gate.png', 'duel_dome_gate_day.png', 'casual_duel_bar.png']
     # buttons = ['npc_diamond.png','auto_duel.png','duel_confirm_yes.png','duel_btn.png','confirm_duel_btn.png','arrow.png']
     for button in buttons:
         if click_template(button): 
