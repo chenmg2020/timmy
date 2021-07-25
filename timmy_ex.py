@@ -104,11 +104,22 @@ def enter_gate():
             if 'gate' in button: logging.info('gate entered')
             return True
 
+def cast_st(duration):
+    print('casting st')
+    t_end = time.time() + duration 
+    while time.time() < t_end:
+        pyautogui.click(1256,923) #select
+        if click_template('activate_effect.png'):
+            return True
+        # if click_template('set.png'):
+        #     return True
+    return False
+
     
 def exit_duel():
     print ('checking for exit duel buttons')
-    buttons = ['win_ok_btn.png','next_btn.png','arrow.png','duel_results.png','close.png','back.png','dice_challenge.png','reboot.png']
-    # buttons = ['win_ok_btn.png','next_btn.png','arrow.png','duel_results.png','close.png','back.png','reboot.png']
+    # buttons = ['win_ok_btn.png','next_btn.png','arrow.png','duel_results.png','close.png','back.png','dice_challenge.png','reboot.png']
+    buttons = ['win_ok_btn.png','next_btn.png','arrow.png','duel_results.png','close.png','back.png','reboot.png']
     for button in buttons:
         if click_template(button): return True
 
@@ -131,6 +142,8 @@ def timmy_duel():
             time.sleep(1)
             if click_template('normal_summon.png'):
                 time.sleep(5)
+            while cast_st(2):
+                cast_st(3)
             else:
                 reset_cursor() 
             change_phase()

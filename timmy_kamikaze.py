@@ -46,7 +46,7 @@ def check_template(template_path):
         return False
 
 def click(x,y):
-    if not ( 480 <= x <= 2080 and 23 <= y <= 950): # check if click is within window frame
+    if not ( 480 <= x <= 2080 and 70 <= y <= 1000): # check if click is within window frame
         logging.warn("out of bound click blocked! at " + str(x) +"," + str(y))
         return
     pyautogui.click(x,y)
@@ -99,7 +99,6 @@ def cast_st(duration):
     print('casting st')
     t_end = time.time() + duration 
     while time.time() < t_end:
-        click(1256,923) #select
         if click_template('activate_effect.png'):
             wait_to_click('confirm_rug.png', 0.8) 
             wait_to_click('confirm_rug.png', 0.8)
@@ -132,8 +131,9 @@ def timmy_duel():
     if check_template('opponent.png'): #opponent's turn
         if wait_to_click('dod.png', 0.5):
             wait_to_click('activate_dod.png', 3)
+            wait_to_click('win_ok_btn.png', 0.3)
         click_template('back.png')  
-        reset_cursor()        
+        reset_cursor()    
     if check_template('you.png'): #your turn
         print('in duel turn, checking phase')
        #main_phase
