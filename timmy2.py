@@ -82,15 +82,15 @@ def change_phase():
     pyautogui.click(1564,652)
     time.sleep(1)
     pyautogui.click(1564,652)
-    time.sleep(3)
+    time.sleep(1)
 
 def draw():
     time.sleep(0.5)
     print('draw')
     pyautogui.click(1280, 497)
-    time.sleep(1)
+    time.sleep(0.5)
     pyautogui.click(1280, 497)
-    time.sleep(1)
+    time.sleep(0.5)
 
 def reset_cursor():
     pyautogui.click(950,610)
@@ -127,12 +127,7 @@ def timmy_duel():
             draw()
         if check_template('phase_main.png'):
             print('enter main phase')
-            click(747,851) #select from hand
-            time.sleep(1)
-            if click_template('normal_summon.png'):
-                time.sleep(5)
-            else:
-                reset_cursor() 
+            summon_monsters()
             change_phase()
             # time.sleep(3.5)
         #battle_phase
@@ -151,7 +146,7 @@ def timmy_duel():
                     while not click_template('atk_btn.PNG'):
                         i += 1
                         click(pt[0], pt[1])
-                        if (i >= 10):
+                        if (i >= 12):
                             break
             print('All monsters have attacked, ending turn')
             reset_cursor()
@@ -163,6 +158,23 @@ def timmy_duel():
     elif exit_duel():
         return
 
+def summon_monsters():
+    img = get_screen() #player's monster zones screen_padding=(660, 470, 970 , 600)
+    img_gray = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
+    template = cv2.imread('templates/monster_atk.png',0)
+    res = cv2.matchTemplate(img_gray,template,cv2.TM_CCOEFF_NORMED)
+    threshold = 0.9
+    loc = np.where(res >= threshold)
+    your_monsters_count = 0
+    for pt in zip(*loc[::-1]):
+                if (pt[1] > 465): #only on your side(bottom half)
+                    your_monsters_count += 1
+    if your_monsters_count >= 2:
+        return 
+    click(747,851) #select from hand
+    if click_template('normal_summon.png'):
+        time.sleep(3)
+        reset_cursor()
 
 def check_exit():
     while (check_template('phase_btn.png') < 0.9 and check_template('win_ok_btn.png') < 0.9):

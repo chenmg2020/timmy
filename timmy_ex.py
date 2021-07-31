@@ -13,10 +13,10 @@ import datetime
 logging.basicConfig(filename=datetime.datetime.now().strftime("logs/%m_%d_%H_%M.log"), level=logging.INFO,format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
 
-x_pad = 480
-y_pad = 70
-x_frame = 1600
-y_frame = 930
+x_pad = 0
+y_pad = 0
+x_frame = 2580
+y_frame = 1080
 screen_mid = (1270,520)
 
 def get_screen():
@@ -68,7 +68,11 @@ def click_template(template_path):
         return False
 
 def click(x,y):
-    pyautogui.click(x + x_pad , y + y_pad)
+    if not ( 480 <= x <= 2080 and 70 <= y <= 1000): # check if click is within window frame
+        logging.warn("out of bound click blocked! at " + str(x) +"," + str(y))
+        return
+    pyautogui.click(x,y)
+
     
 def change_phase():
     if click_template('win_ok_btn.png'): #exit on last winning turn
@@ -110,6 +114,8 @@ def cast_st(duration):
     while time.time() < t_end:
         pyautogui.click(1256,923) #select
         if click_template('activate_effect.png'):
+            click_template('board_monser.png')
+            click_template('confirm.png')
             return True
         # if click_template('set.png'):
         #     return True
@@ -132,20 +138,14 @@ def timmy_duel():
     if check_template('you.png'):
         #draw_phase
         print('in duel turn, checking phase')
-        #main_phase
+        #main_phasec
         if check_template('phase_draw.png'):
             print('enter draw phase')
             draw()
         if check_template('phase_main.png'):
             print('enter main phase')
-            click(747,851) #select from hand
-            time.sleep(1)
-            if click_template('normal_summon.png'):
-                time.sleep(5)
-            while cast_st(2):
-                cast_st(3)
-            else:
-                reset_cursor() 
+            for x in range(1100,1400,50):
+                use_card(x)
             change_phase()
             # time.sleep(3.5)
         #battle_phase
@@ -161,11 +161,13 @@ def timmy_duel():
                 if (pt[1] > 465): #only on your side(bottom half)
                     click(pt[0], pt[1])
                     i = 0
-                    while not click_template('atk_btn.PNG'):
-                        i += 1
-                        click(pt[0], pt[1])
-                        if (i >= 10):
-                            break
+                    if click_template('atk_btn.PNG'):
+                        click(1027,707)
+                        click(1280,857)
+                        continue
+                    i += 1
+                    if (i >= 10):
+                        continue
             print('All monsters have attacked, ending turn')
             reset_cursor()
             # click_template('phase_btn.png') #end turn
@@ -185,6 +187,18 @@ def check_exit():
         return False
     if (check_template('win_ok_btn.png') >= 0.9):
         return True
+
+def use_card(x_pos):
+    click(x_pos, 930) #select from hand
+    time.sleep(0.5)
+    if click_template('special_summon.png'):
+        time.sleep(3)
+    if click_template('normal_summon.png'):
+        time.sleep(3)
+    if click_template('activate_effect.png'):
+        time.sleep(2)
+    else:
+        reset_cursor() 
 
 def main():
     while True:

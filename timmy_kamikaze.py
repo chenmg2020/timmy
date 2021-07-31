@@ -76,7 +76,7 @@ def click_template(template_path):
 
 def change_phase():
     reset_cursor()
-    if click_template('win_ok_btn.png'): #exit on last winning turn
+    if click_template('ok_btn.png'): #exit on last winning turn
         return
     wait_to_click('phase_btn.png',1)
     wait_to_click('end.png', 1)
@@ -113,7 +113,7 @@ def reset_cursor():
     click(950,610)
 
 def enter_casual():
-    print('entering casual duel')
+    print('checking casual duel buttons')
     buttons = ['casual_duel_btn.png','duel_btn.png','confirm_duel_btn.png','arrow.png', 'initiate_link.png', 'duel_dome_gate.png', 'duel_dome_gate_day.png', 'casual_duel_bar.png']
     # buttons = ['npc_diamond.png','auto_duel.png','duel_confirm_yes.png','duel_btn.png','confirm_duel_btn.png','arrow.png']
     for button in buttons:
@@ -123,8 +123,8 @@ def enter_casual():
 
 def exit_duel():
     print ('checking for exit duel buttons')
-    # buttons = ['win_ok_btn.png','next_btn.png','arrow.png','duel_results.png','close.png','back.png','dice_challenge.png','reboot.png']
-    buttons = ['win_ok_btn.png','next_btn.png','arrow.png','duel_results.png','close.png','back.png','reboot.png']
+    # buttons = ['ok_btn.png','next_btn.png','arrow.png','duel_results.png','close.png','back.png','dice_challenge.png','reboot.png']
+    buttons = ['ok_btn.png','next_btn.png','arrow.png','duel_results.png','close.png','back.png','reboot.png']
     for button in buttons:
         if click_template(button): return True
 
@@ -132,10 +132,10 @@ def timmy_duel():
     if check_template('opponent.png'): #opponent's turn
         if wait_to_click('dod.png', 0.5):
             wait_to_click('activate_dod.png', 3)
-            wait_to_click('win_ok_btn.png', 0.3)
-        click_template('back.png')  
+            wait_to_click('ok_btn.png', 0.3)
         reset_cursor()    
     if check_template('you.png'): #your turn
+        click_template('yes.png')  
         print('in duel turn, checking phase')
        #main_phase
         if check_template('phase_draw.png'): #draw_phase
@@ -151,6 +151,8 @@ def timmy_duel():
         if check_template('phase_battle.png'): #battle_phase
             change_phase()
             return
+        click_template('back.png')
+        click_template('yes.png')  
     elif exit_duel():
         return
     elif enter_casual():
