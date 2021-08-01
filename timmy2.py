@@ -12,12 +12,12 @@ import datetime
 
 logging.basicConfig(filename=datetime.datetime.now().strftime("logs/%m_%d_%H_%M.log"), level=logging.INFO,format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
-
-x_pad = 480
-y_pad = 70
-x_frame = 1600
-y_frame = 930
+x_pad = 0
+y_pad = 0
+x_frame = 2580
+y_frame = 1080
 screen_mid = (1270,520)
+
 
 def get_screen():
     box = (x_pad, y_pad, x_pad + x_frame, y_pad + y_frame)
@@ -68,7 +68,11 @@ def click_template(template_path):
         return False
 
 def click(x,y):
-    pyautogui.click(x + x_pad , y + y_pad)
+    if not ( 480 <= x <= 2080 and 70 <= y <= 1000): # check if click is within window frame
+        logging.warn("out of bound click blocked! at " + str(x) +"," + str(y))
+        return
+    pyautogui.click(x,y)
+
     
 def change_phase():
     if click_template('win_ok_btn.png'): #exit on last winning turn
@@ -112,7 +116,6 @@ def exit_duel():
     for button in buttons:
         if click_template(button): return True
 
-turn_status_pixel = (1427,153)
 def timmy_duel():
     if check_template('opponent.png'):
         reset_cursor()
@@ -157,6 +160,8 @@ def timmy_duel():
         return
     elif exit_duel():
         return
+    else:
+        reset_cursor()
 
 def summon_monsters():
     img = get_screen() #player's monster zones screen_padding=(660, 470, 970 , 600)
@@ -171,7 +176,7 @@ def summon_monsters():
                     your_monsters_count += 1
     if your_monsters_count >= 2:
         return 
-    click(747,851) #select from hand
+    click(1256,967) #select from hand
     if click_template('normal_summon.png'):
         time.sleep(3)
         reset_cursor()
