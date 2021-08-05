@@ -100,7 +100,7 @@ def cast_st(duration):
     t_end = time.time() + duration 
     while time.time() < t_end:
         click(1256,967) #select
-        if click_template('activate_effect.png'):
+        if wait_to_click('activate_effect.png',0.5):
             wait_to_click('confirm_rug.png', 0.8) 
             wait_to_click('confirm_rug.png', 0.8)
             return True
@@ -133,6 +133,10 @@ def timmy_duel():
         if wait_to_click('dod.png', 0.5):
             wait_to_click('activate_dod.png', 3)
             wait_to_click('ok_btn.png', 0.3)
+        if wait_to_click('cybernetic.png', 0.5):
+            wait_to_click('activate_dod.png', 3)
+            wait_to_click('ok_btn.png', 0.3)
+        
         reset_cursor()    
     if check_template('you.png'): #your turn
         click_template('yes.png')  

@@ -46,9 +46,13 @@ def check_template(template_path):
 
 def click_template(template_path):
     current_screen = get_screen()
+    if template_path == 'auto_duel.png':
+    # box = (x_pad, 600,  x_frame,  y_frame )
+    # current_screen = ImageGrab.grab(box)
+        threshold = 0.9
     img = cv2.cvtColor(np.array(current_screen), cv2.COLOR_BGR2GRAY)
     img2 = img.copy()
-    threshold = 0.7
+    threshold = 0.75
     template = cv2.imread('templates/' + template_path,0)
     w, h = template.shape[::-1]
     img = img2.copy()
